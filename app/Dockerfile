@@ -7,4 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "Pythia_parser_NM.py"]
+CMD ["python", "Pythia_parser_NY.py"]
