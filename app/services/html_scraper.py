@@ -19,6 +19,7 @@ async def fetch_company_details(url: str) -> dict:
         async with aiohttp.ClientSession(headers=headers) as session:
             async with session.post(base_url, json=payload) as response:
                 response.raise_for_status()
+                logger.debug(f"response text for  '{url}': {await response.text()}")
                 data = json.loads(await response.text())
                 return await parse_html_details(data)
     except Exception as e:
@@ -93,14 +94,18 @@ async def parse_html_name_agent(data: dict) -> dict:
 
 async def parse_html_details(data: dict) -> dict:
     def format_address(address: dict) -> str:
-        parts = [
-            address.get("streetAddress"),
-            address.get("city"),
-            address.get("state"),
-            address.get("zipCode"),
-            address.get("country")
-        ]
-        return ", ".join(filter(None, map(str.strip, parts)))
+        try:
+            parts = [
+                address.get("streetAddress"),
+                address.get("city"),
+                address.get("state"),
+                address.get("zipCode"),
+                address.get("country")
+            ]
+            return ", ".join(filter(None, map(str.strip, parts)))
+        except Exception as e:
+            logger.error(f"Error formatting details: {e}")
+            return ""
 
     entity_info = data.get("entityGeneralInfo", {})
     ceo_info = data.get("ceo", {})
